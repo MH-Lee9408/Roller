@@ -194,7 +194,7 @@ with col_input2:
 
 with col_input3:
     st.markdown("##### 3. 해석 옵션")
-    input_mesh = st.slider("구간당 요소 수", 2, 50, 20)
+    input_mesh = st.slider("구간당 요소 수", 2, 1000, 20)
     input_theory = st.selectbox("빔 이론", ["Euler-Bernoulli", "Timoshenko"])
     # m 단위 변위는 매우 작으므로 확대 배율 조정 필요
     input_scale = st.number_input("변위 확대 배율", value=1000.0)
