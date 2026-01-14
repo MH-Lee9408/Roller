@@ -231,24 +231,38 @@ if solve_btn:
     with tab1:
         fig1, ax1 = plt.subplots(figsize=(10, 5))
         
-        # 롤러 형상 (배경) - mm 단위로 그리기
-        ax1.add_patch(patches.Rectangle((0, -input_D1/2), input_L1, input_D1, fc='lightgray', ec='black', alpha=0.5))
+        # 1. 롤러 형상 (배경) - 실제 mm 단위
+        # (이 부분은 축의 기준이 됩니다)
+        ax1.add_patch(patches.Rectangle((0, -input_D1/2), input_L1, input_D1, fc='lightgray', ec='black', alpha=0.5, label='Geometry'))
         ax1.add_patch(patches.Rectangle((input_L1, -input_D2/2), input_L2, input_D2, fc='gray', ec='black', alpha=0.5))
         ax1.add_patch(patches.Rectangle((input_L1+input_L2, -input_D1/2), input_L1, input_D1, fc='lightgray', ec='black', alpha=0.5))
         
-        # 처짐 곡선 (mm 단위 + 확대)
+        # 2. 처짐 곡선 (확대된 시각화)
+        # Y축은 그대로 두고 데이터만 뻥튀기해서 그림 (Shape 확인용)
         deformed_y_mm = disp_mm * input_scale
-        ax1.plot(nodes_mm, deformed_y_mm, 'r-', linewidth=2, label=f'Deflection (x{input_scale})')
+        ax1.plot(nodes_mm, deformed_y_mm, 'r-', linewidth=2, label=f'Deflection (Magnified x{int(input_scale)})')
         
-        ax1.set_title(f"Deformed Shape ({input_theory})")
-        ax1.set_xlabel("Position (mm)")
-        # Y축은 형상(mm) + 처짐(mm)
-        ax1.set_ylabel("Diameter / Deflection (mm)")
-        ax1.axis('equal')
-        ax1.grid(True, linestyle='--', alpha=0.5)
-        ax1.legend()
-        st.pyplot(fig1)
+        # 3. 그래프 꾸미기 (단위 및 레이블 명확화)
+        ax1.set_title(f"Deformed Shape Visualization (Scale Factor: x{int(input_scale)})")
+        ax1.set_xlabel("Axial Position (mm)")
+        ax1.set_ylabel("Radial Position (mm)") # Y축은 롤러의 실제 위치 기준임을 명시
+        
+        # 4. 실제 최대 처짐값 텍스트 주석 추가 (오해 방지용)
+        # 그래프 중앙 하단쯤에 실제 값을 적어줌
+        text_x = (2*input_L1 + input_L2) / 2
+        text_y = np.min(deformed_y_mm) * 1.1 # 그래프 곡선 바로 아래
+        ax1.text(text_x, text_y, f"Real Max Deflection: {max_disp_mm:.4f} mm", 
+                 horizontalalignment='center', color='red', fontweight='bold')
 
+        ax1.axis('equal') # 롤러가 찌그러져 보이지 않게 비율 고정
+        ax1.grid(True, linestyle='--', alpha=0.5)
+        
+        # 범례 표시 (Geometry와 Deflection 구분)
+        # patch(사각형)는 label이 잘 안 먹을 수 있어서, 선(Line) 위주로 범례 생성
+        handles, labels = ax1.get_legend_handles_labels()
+        ax1.legend(handles, labels, loc='upper right')
+        
+        st.pyplot(fig1)
     with tab2:
         fig2, (ax2, ax3) = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
         
